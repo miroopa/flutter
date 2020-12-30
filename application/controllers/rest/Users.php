@@ -82,6 +82,9 @@ class Users extends API_Controller
 		// exit if there is an error in validation,
         if ( !$this->is_valid( $rules )) exit;
         $email_verified_enable = $this->Backend_config->get_one('be1')->email_verification_enabled;
+		$status_shop = ($this->post('status_shop'))?$this->post('status_shop'):NULL;
+		$open_hour = ($this->post('open_hour'))?$this->post('open_hour'):NULL;
+		$close_hour = ($this->post('close_hour'))?$this->post('close_hour'):NULL;
 
         $code = generate_random_string(5);
         if($email_verified_enable != 1) {
@@ -93,7 +96,10 @@ class Users extends API_Controller
 	        	'user_password' => md5($this->post('user_password')),
 	        	"device_token" => $this->post('device_token'),
 	        	"code" =>  "",
-	        	"email_verify" => 1,
+				"email_verify" => 1,
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" => 1 //Need to verified status
 
 	        );
@@ -105,7 +111,10 @@ class Users extends API_Controller
 	        	'user_password' => md5($this->post('user_password')),
 	        	"device_token" => $this->post('device_token'),
 	        	"code" =>  $code,
-	        	"email_verify" => 1,
+				"email_verify" => 1,
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" => 2 //Need to verified status
 
 	        );
@@ -439,7 +448,6 @@ class Users extends API_Controller
 		 
         }
 
-
         $user_data = array(
         	"user_name"     => $this->post('user_name'), 
         	"user_email"    => $this->post('user_email'), 
@@ -448,7 +456,17 @@ class Users extends API_Controller
         	"city"			=> $this->post('city'),
         	"user_about_me" => $this->post('user_about_me'),
         	"device_token" => $this->post('device_token')
-        );
+		);
+		if($this->post('status_shop') && $this->post('status_shop') != null && $this->post('status_shop') != "")) {
+			$user_data['status_shop'] = $this->post('status_shop');
+		}
+		if($this->post('open_hour') && $this->post('open_hour') != null && $this->post('open_hour') != "")) {
+			$user_data['open_hour'] = $this->post('open_hour');
+		}
+		if($this->post('close_hour') && $this->post('close_hour') != null && $this->post('close_hour') != "")) {
+			$user_data['close_hour'] = $this->post('close_hour');
+		}
+
         // print_r($user_data);die;
 
         if ( !$this->User->save($user_data, $this->post('user_id'))) {
@@ -616,6 +634,9 @@ class Users extends API_Controller
 
 		// exit if there is an error in validation,
         if ( !$this->is_valid( $rules )) exit;
+		$status_shop = ($this->post('status_shop'))?$this->post('status_shop'):NULL;
+		$open_hour = ($this->post('open_hour'))?$this->post('open_hour'):NULL;
+		$close_hour = ($this->post('close_hour'))?$this->post('close_hour'):NULL;
 
         //Need to check facebook_id is aleady exist or not?
         if ( !$this->User->exists( array( 'facebook_id' => $this->post( 'facebook_id' ) ))) {
@@ -667,7 +688,10 @@ class Users extends API_Controller
 	        	"device_token" => $this->post('device_token'),
 	        	"role_id"	=> 4,
 	        	"facebook_verify" => 1,
-	        	"status" 	=> 1, 
+				"status" 	=> 1, 
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 		        "code"    => ' '
         	);
 
@@ -688,7 +712,15 @@ class Users extends API_Controller
 			
         	if ( $user_id != "") {
 				//user email alerady exist
-
+				if($user_infos[0]->status_shop != NULL && (!$this->post('status_shop') || $this->post('status_shop') == "")) {
+					$status_shop = $user_infos[0]->status_shop;
+				}
+				if($user_infos[0]->open_hour != NULL && (!$this->post('open_hour') || $this->post('open_hour') == "")) {
+					$open_hour = $user_infos[0]->open_hour;
+				}
+				if($user_infos[0]->close_hour != NULL && (!$this->post('close_hour') || $this->post('close_hour') == "")) {
+					$close_hour = $user_infos[0]->close_hour;
+				}
 				//for user name and user email
 				$user_name = $this->post('user_name');
 				$user_email = $this->post('user_email');
@@ -701,7 +733,10 @@ class Users extends API_Controller
 					"facebook_id" 	=> $user_data['facebook_id'],
 		        	"facebook_verify" => $user_data['facebook_verify'],
 		        	'user_profile_photo' => $user_data['user_profile_photo'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else if ($user_name == "") {
@@ -712,7 +747,10 @@ class Users extends API_Controller
 					"facebook_id" 	=> $user_data['facebook_id'],
 		        	"facebook_verify" => $user_data['facebook_verify'],
 		        	'user_profile_photo' => $user_data['user_profile_photo'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else if ($user_email == "") {
@@ -723,7 +761,10 @@ class Users extends API_Controller
 					"facebook_id" 	=> $user_data['facebook_id'],
 		        	"facebook_verify" => $user_data['facebook_verify'],
 		        	'user_profile_photo' => $user_data['user_profile_photo'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else{
@@ -734,7 +775,10 @@ class Users extends API_Controller
 					"facebook_id" 	=> $user_data['facebook_id'],
 		        	"facebook_verify" => $user_data['facebook_verify'],
 		        	'user_profile_photo' => $user_data['user_profile_photo'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status'] 
 					);
 				}
@@ -906,7 +950,15 @@ class Users extends API_Controller
 				'user_profile_photo' => $user_data['user_profile_photo'], 
 				);
 			}	
-
+			if($this->post('status_shop') && $this->post('status_shop') != null && $this->post('status_shop') != "")) {
+				$user_data['status_shop'] = $this->post('status_shop');
+			}
+			if($this->post('open_hour') && $this->post('open_hour') != null && $this->post('open_hour') != "")) {
+				$user_data['open_hour'] = $this->post('open_hour');
+			}
+			if($this->post('close_hour') && $this->post('close_hour') != null && $this->post('close_hour') != "")) {
+				$user_data['close_hour'] = $this->post('close_hour');
+			}
 
 			$users_data = $this->User->get_one_by($conds1);
 			$user_id = $users_data->user_id;
@@ -1270,7 +1322,9 @@ class Users extends API_Controller
 
 		// exit if there is an error in validation,
         if ( !$this->is_valid( $rules )) exit;
-
+		$status_shop = ($this->post('status_shop'))?$this->post('status_shop'):NULL;
+		$open_hour = ($this->post('open_hour'))?$this->post('open_hour'):NULL;
+		$close_hour = ($this->post('close_hour'))?$this->post('close_hour'):NULL;
         //Need to check google_id is aleady exist or not?
         if ( !$this->User->exists( 
         	array( 
@@ -1324,7 +1378,10 @@ class Users extends API_Controller
 		        	"device_token" => $this->post('device_token'),
 		        	"role_id" => 4,
 		        	"google_verify" => 1,
-		        	"status" 	=> 1, 
+					"status" 	=> 1, 
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 			        "code"   => ' '
 	        	);
 
@@ -1337,7 +1394,10 @@ class Users extends API_Controller
 		        	"device_token" => $this->post('device_token'),
 		        	"role_id" => 4,
 		        	"google_verify" => 1,
-		        	"status" 	=> 1, 
+					"status" 	=> 1, 
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 			        "code"   => ' '
         		);
 			}
@@ -1351,7 +1411,15 @@ class Users extends API_Controller
 			        	
 			if ( $user_id != "") {
 				//user email alerady exist
-
+				if($user_infos[0]->status_shop != NULL && (!$this->post('status_shop') || $this->post('status_shop') == "")) {
+					$status_shop = $user_infos[0]->status_shop;
+				}
+				if($user_infos[0]->open_hour != NULL && (!$this->post('open_hour') || $this->post('open_hour') == "")) {
+					$open_hour = $user_infos[0]->open_hour;
+				}
+				if($user_infos[0]->close_hour != NULL && (!$this->post('close_hour') || $this->post('close_hour') == "")) {
+					$close_hour = $user_infos[0]->close_hour;
+				}
 				//for user name and user email
 				$user_name = $this->post('user_name');
 				$user_email = $this->post('user_email');
@@ -1363,7 +1431,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"google_id" 	=> $user_data['google_id'],
 		        	"google_verify" => $user_data['google_verify'],
-		        	'user_profile_photo' => $user_data['user_profile_photo'],
+					'user_profile_photo' => $user_data['user_profile_photo'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"role_id" => $user_data['role_id'],
 		        	"status" 	=> $user_data['status']
 					);
@@ -1374,7 +1445,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"google_id" 	=> $user_data['google_id'],
 		        	"google_verify" => $user_data['google_verify'],
-		        	'user_profile_photo' => $user_data['user_profile_photo'],
+					'user_profile_photo' => $user_data['user_profile_photo'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"role_id" => $user_data['role_id'],
 		        	"status" 	=> $user_data['status']
 					);
@@ -1385,7 +1459,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'], 
 					"google_id" 	=> $user_data['google_id'],
 		        	"google_verify" => $user_data['google_verify'],
-		        	'user_profile_photo' => $user_data['user_profile_photo'],
+					'user_profile_photo' => $user_data['user_profile_photo'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"role_id" => $user_data['role_id'],
 		        	"status" 	=> $user_data['status']
 					);
@@ -1396,7 +1473,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"google_id" 	=> $user_data['google_id'],
 		        	"google_verify" => $user_data['google_verify'],
-		        	'user_profile_photo' => $user_data['user_profile_photo'],
+					'user_profile_photo' => $user_data['user_profile_photo'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"role_id" => $user_data['role_id'],
 		        	"status" 	=> $user_data['status'] 
 					);
@@ -1546,7 +1626,7 @@ class Users extends API_Controller
 					'device_token'  => $this->post('device_token')
 				);
 			}
-
+			
 			//for user name and user email
 			$user_name = $this->post('user_name');
 			$user_email = $this->post('user_email');
@@ -1576,6 +1656,15 @@ class Users extends API_Controller
 				'user_profile_photo' => $user_data['user_profile_photo'],
 				);
 			}	
+			if($this->post('status_shop') && $this->post('status_shop') != null && $this->post('status_shop') != "") {
+				$user_data['status_shop'] = $this->post('status_shop');
+			}
+			if($this->post('open_hour') && $this->post('open_hour') != null && $this->post('open_hour') != "")) {
+				$user_data['open_hour'] = $this->post('open_hour');
+			}
+			if($this->post('close_hour') && $this->post('close_hour') != null && $this->post('close_hour') != "")) {
+				$user_data['close_hour'] = $this->post('close_hour');
+			}
 
 			$conds['google_id'] = $this->post( 'google_id' );
 			$user_datas = $this->User->get_one_by($conds);
@@ -1651,7 +1740,9 @@ class Users extends API_Controller
 
 		// exit if there is an error in validation,
         if ( !$this->is_valid( $rules )) exit;
-
+		$status_shop = ($this->post('status_shop'))?$this->post('status_shop'):NULL;
+		$open_hour = ($this->post('open_hour'))?$this->post('open_hour'):NULL;
+		$close_hour = ($this->post('close_hour'))?$this->post('close_hour'):NULL;
         //Need to check phone_id is aleady exist or not?
         if ( !$this->User->exists( 
         	//new
@@ -1665,14 +1756,16 @@ class Users extends API_Controller
 		        	'rules' => 'required'
 		        )
 	        );
-
 			$user_data = array(
 	        	"user_name" 	=> $this->post('user_name'), 
 	        	"user_phone"    => $this->post('user_phone'), 
 	        	"phone_id" 	   => $this->post('phone_id'),
 	        	"device_token" => $this->post('device_token'),
 	        	"role_id" => 4,
-	        	"phone_verify" => 1,
+				"phone_verify" => 1,
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" => 1
         	);
 
@@ -1687,6 +1780,15 @@ class Users extends API_Controller
 				//for user name and user email
 			$user_name = $this->post('user_name');
 			$user_phone = $this->post('user_phone');
+			if($user_infos[0]->status_shop != NULL && (!$this->post('status_shop') || $this->post('status_shop') == "")) {
+				$status_shop = $user_infos[0]->status_shop;
+			}
+			if($user_infos[0]->open_hour != NULL && (!$this->post('open_hour') || $this->post('open_hour') == "")) {
+				$open_hour = $user_infos[0]->open_hour;
+			}
+			if($user_infos[0]->close_hour != NULL && (!$this->post('close_hour') || $this->post('close_hour') == "")) {
+				$close_hour = $user_infos[0]->close_hour;
+			}
 
 			if ($user_name == "" && $user_phone == "") {
 				$user_data = array(
@@ -1695,7 +1797,10 @@ class Users extends API_Controller
 				"device_token"  => $user_data['device_token'],
 				"phone_id" 	=> $user_data['phone_id'],
 	        	"phone_verify" => $user_data['phone_verify'],
-	        	"role_id" => $user_data['role_id'],
+				"role_id" => $user_data['role_id'],
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" 	=> $user_data['status']
 				);
 			}else if ($user_name == "") {
@@ -1705,7 +1810,10 @@ class Users extends API_Controller
 				"device_token"  => $user_data['device_token'],
 				"phone_id" 	=> $user_data['phone_id'],
 	        	"phone_verify" => $user_data['phone_verify'],
-	        	"role_id" => $user_data['role_id'],
+				"role_id" => $user_data['role_id'],
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" 	=> $user_data['status']
 				);
 			}else if ($user_phone == "") {
@@ -1715,7 +1823,10 @@ class Users extends API_Controller
 				"device_token"  => $user_data['device_token'], 
 				"phone_id" 	=> $user_data['phone_id'],
 	        	"phone_verify" => $user_data['phone_verify'],
-	        	"role_id" => $user_data['role_id'],
+				"role_id" => $user_data['role_id'],
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" 	=> $user_data['status']
 				);
 			}else{
@@ -1725,7 +1836,10 @@ class Users extends API_Controller
 				"device_token"  => $user_data['device_token'],
 				"phone_id" 	=> $user_data['phone_id'],
 	        	"phone_verify" => $user_data['phone_verify'],
-	        	"role_id" => $user_data['role_id'],
+				"role_id" => $user_data['role_id'],
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 	        	"status" 	=> $user_data['status']
 				);
 			}
@@ -1827,7 +1941,8 @@ class Users extends API_Controller
 
         } else {
         	//update
-        	//User already exist in DB
+			//User already exist in DB
+
 			$user_data = array(
 				"user_name"    	=> $this->post('user_name'), 
 				"user_phone"    => $this->post('user_phone'),
@@ -1858,6 +1973,16 @@ class Users extends API_Controller
 				'user_phone'    => $user_data['user_phone'],
 				'device_token'  => $user_data['device_token'], 
 				);
+			}
+			
+			if($this->post('status_shop') && $this->post('status_shop') != null && $this->post('status_shop') != "") {
+				$user_data['status_shop'] = $this->post('status_shop');
+			}
+			if($this->post('open_hour') && $this->post('open_hour') != null && $this->post('open_hour') != "")) {
+				$user_data['open_hour'] = $this->post('open_hour');
+			}
+			if($this->post('close_hour') && $this->post('close_hour') != null && $this->post('close_hour') != "")) {
+				$user_data['close_hour'] = $this->post('close_hour');
 			}
 
 			$conds['phone_id'] = $this->post( 'phone_id' );
@@ -1934,7 +2059,9 @@ class Users extends API_Controller
 
 		// exit if there is an error in validation,
         if ( !$this->is_valid( $rules )) exit;
-
+		$status_shop = ($this->post('status_shop'))?$this->post('status_shop'):NULL;
+		$open_hour = ($this->post('open_hour'))?$this->post('open_hour'):NULL;
+		$close_hour = ($this->post('close_hour'))?$this->post('close_hour'):NULL;
         //Need to check apple_id is aleady exist or not?
         if ( !$this->User->exists( 
         	array( 
@@ -1955,7 +2082,10 @@ class Users extends API_Controller
 	        	"device_token" => $this->post('device_token'),
 	        	"role_id" => 4,
 	        	"apple_verify" => 1,
-	        	"status" 	=> 1, 
+				"status" 	=> 1, 
+				"status_shop" => $status_shop,
+				"open_hour" => $open_hour,
+				"close_hour" => $close_hour,
 		        "code"   => ' '
     		);
 
@@ -1968,7 +2098,15 @@ class Users extends API_Controller
 
 			if ( $user_id != "") {
 				//user email alerady exist
-
+				if($user_infos[0]->status_shop != NULL && (!$this->post('status_shop') || $this->post('status_shop') == "")) {
+					$status_shop = $user_infos[0]->status_shop;
+				}
+				if($user_infos[0]->open_hour != NULL && (!$this->post('open_hour') || $this->post('open_hour') == "")) {
+					$open_hour = $user_infos[0]->open_hour;
+				}
+				if($user_infos[0]->close_hour != NULL && (!$this->post('close_hour') || $this->post('close_hour') == "")) {
+					$close_hour = $user_infos[0]->close_hour;
+				}
 				//for user name and user email
 				$user_name = $this->post('user_name');
 				$user_email = $this->post('user_email');
@@ -1980,7 +2118,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"apple_id" 	=> $user_data['apple_id'],
 		        	"apple_verify" => $user_data['apple_verify'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else if ($user_name == "") {
@@ -1990,7 +2131,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"apple_id" 	=> $user_data['apple_id'],
 		        	"apple_verify" => $user_data['apple_verify'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else if ($user_email == "") {
@@ -2000,7 +2144,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'], 
 					"apple_id" 	=> $user_data['apple_id'],
 		        	"apple_verify" => $user_data['apple_verify'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status']
 					);
 				}else{
@@ -2010,7 +2157,10 @@ class Users extends API_Controller
 					"device_token"  => $user_data['device_token'],
 					"apple_id" 	=> $user_data['apple_id'],
 		        	"apple_verify" => $user_data['apple_verify'],
-		        	"role_id" => $user_data['role_id'],
+					"role_id" => $user_data['role_id'],
+					"status_shop" => $status_shop,
+					"open_hour" => $open_hour,
+					"close_hour" => $close_hour,
 		        	"status" 	=> $user_data['status'] 
 					);
 				}
@@ -2139,7 +2289,15 @@ class Users extends API_Controller
 				);
 			}
 
-
+			if($this->post('status_shop') && $this->post('status_shop') != null && $this->post('status_shop') != "")) {
+				$user_data['status_shop'] = $this->post('status_shop');
+			} 
+			if($this->post('open_hour') && $this->post('open_hour') != null && $this->post('open_hour') != "")) {
+				$user_data['open_hour'] = $this->post('open_hour');
+			}
+			if($this->post('close_hour') && $this->post('close_hour') != null && $this->post('close_hour') != "")) {
+				$user_data['close_hour'] = $this->post('close_hour');
+			}
 			$conds['apple_id'] = $this->post( 'apple_id' );
 			$user_datas = $this->User->get_one_by($conds);
 			$user_id = $user_datas->user_id;

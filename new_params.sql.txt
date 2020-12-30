@@ -1,0 +1,10 @@
+
+ALTER TABLE core_users
+ADD status_shop VARCHAR(255)
+
+
+ALTER TABLE core_users
+ADD open_hour date
+
+ALTER TABLE core_users
+ADD close_hour date
